@@ -9,7 +9,8 @@ ___
 ### 1-1. Rapsberry Pi GPIO 40pin  
 RPi-GP40を制御するために、GPIO 40pinの下記の信号を使用します。  
   
-<u>制御信号</u><br>  
+<u>制御信号</u>  
+  
 | PIN# | 名称 | 機能説明 |  
 |:---:|:---|:---|  
 |8|GPIO14|デジタル出力(オプション) <br> ※ジャンパ抵抗 JP7 実装時に有効　PIN# 32 参照|  
@@ -24,7 +25,8 @@ RPi-GP40を制御するために、GPIO 40pinの下記の信号を使用しま�
 |32|GPIO12|デジタル出力(デフォルト) <br> ※ジャンパ抵抗 JP8 実装時に有効 <br> オープンコレクタ出力 1:L, 0:オープン|  
 |33|GPIO13|デジタル/アラーム入力(デフォルト) <br> ※ジャンパ抵抗 JP6 実装時に有効 <br>  要求  1:なし , 0:あり <br> デジタル入力：MIL コネクタモデルのみ <br>アラーム入力：ADS8668 の ALARM 通知機能 <br> デジタル入力とアラーム入力はワイヤード OR|  
 
-<u>電源端子</u><br>  
+<u>電源端子</u>  
+  
 |PIN#|説明|  
 |:--:|:--:|  
 |1pin<br>17pin|3.3V|  
@@ -34,17 +36,21 @@ RPi-GP40を制御するために、GPIO 40pinの下記の信号を使用しま�
 ### 1-2. SPI  
 TI製ADS8668 A/Dコンバータを制御するために使用します。  
   
-<u>SPI動作モード</u>  
+<u>SPI動作モード</u>
+  
 以下の動作モードで使用してください。  
 - SPI最大クロック周波数：17MHz  
 - SPIモード：１　（CPOL=0, CPHA=1 クロック:正論理, 位相:H→L）  
   
 <u>ADS8668 レジスタマップ</u>  
+  
 ADS8668のデータシート「8.5レジスタマップ」を日本語翻訳したpdfです。  
 https://github.com/ratocsystems/rpi-gp40/raw/master/datasheet/ads8668regj.pdf  
 
 <u>ADS8668 製品情報</u>  
-最新の情報や詳細についてはTexas Instruments社のADS8668製品情報を参照してください。  http://www.tij.co.jp/product/jp/ADS8668  
+  
+最新の情報や詳細についてはTexas Instruments社のADS8668製品情報を参照してください。  
+http://www.tij.co.jp/product/jp/ADS8668  
  
   
 ### 1-3. アナログ入力  

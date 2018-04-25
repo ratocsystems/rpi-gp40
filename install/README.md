@@ -34,15 +34,15 @@ https://www.raspberrypi.org/downloads/noobs/
    ![03](/install/img/Raspi_03.png)  
 
 
-## I2Cの有効設定  
+## SPIの有効設定  
 
 8) OSを起動し、[設定]-[Rapberry Piの設定]をクリックします。  
 
    ![04](/install/img/Raspi_04.png)  
 
-9) [インターフェース]で"I2C"を有効にし、OSを再起動します。
+9) [インターフェース]で"SPI"を有効にし、OSを再起動します。
 
-   ![05](/install/img/Raspi_05.png)  
+   ![06](/install/img/Raspi_06.png)  
 
 
 以上でRaspbianのインストールと設定は完了です。

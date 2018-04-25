@@ -6,7 +6,7 @@ ___
 ## 1. 基板構成  
 製品基板の各部名称は以下のとおりです。
 
-![board](./img/GP40_board.png)
+![board](./img/GP40_board.png)  
 
 | No | 名称 | 機能 |
 |:-----:|:-----|-----|
@@ -18,8 +18,8 @@ ___
 ___  
 ## 2. 各端子・コネクタについて  
 ### 2-1. GPIO 40PINコネクタ
-GPIO 40 PIN の配列および使用ピンは以下のとおりです。<br>
-![GPIO40PIN](./img/gp40_gpio.png)
+GPIO 40 PIN の配列および使用ピンは以下のとおりです。<br>  
+![GPIO40PIN](./img/gp40_gpio.png)  
 
 40PIN GPIOのピン配列と説明<br>
 

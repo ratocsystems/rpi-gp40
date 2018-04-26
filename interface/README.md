@@ -44,12 +44,12 @@ TI製ADS8668 A/Dコンバータを制御するために使用します。
   
 <u>ADS8668 レジスタマップ</u>  
   
-ADS8668のデータシート「8.5レジスタマップ」を日本語翻訳したpdfです。  
+ADS8668のデータシートから「8.5レジスタマップ」などプログラム作成に必要な部分を抜粋し日本語翻訳したpdfです。  
 https://github.com/ratocsystems/rpi-gp40/raw/master/datasheet/ads8668regj.pdf  
 
 <u>ADS8668 製品情報</u>  
   
-最新の情報や詳細についてはTexas Instruments社のADS8668製品情報を参照してください。  
+最新の情報や機能詳細についてはTexas Instruments社のADS8668製品情報を参照してください。  
 http://www.tij.co.jp/product/jp/ADS8668  
  
   

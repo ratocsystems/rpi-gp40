@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# 2020-10-23: SPI CS端子をGPIO制御方式へ変更
 
 import sys
 import os
@@ -19,31 +20,43 @@ chr  = [0,0,0,0,0,0,0,0]         # ch0-7の入力レンジ初期値
 adalarm = 0                      # ADアラーム 0:無効 1:有効
 adach = 0                        # ADアラーム発生ch bit0-7=ch0-7 bit8=DIN
 adadt = 0                        # デジタル入力検知時のADC ch0値
+ADCS = 8                         # AD SPI CS端子のGPIO番号 8
 
 # RPi-GP40初期設定
-def init_GP40():   
+def init_GP40():
     GPIO.setmode(GPIO.BCM)                                # Use Broadcom pin numbering
+    GPIO.setwarnings(False)
+    GPIO.setup(ADCS, GPIO.OUT, initial=GPIO.HIGH)         # ADCS はGPIO端子として制御する
     GPIO.setup(27,   GPIO.OUT, initial=GPIO.HIGH )        # RPi-GP40絶縁電源ON
     GPIO.setup(DOUT, GPIO.OUT, initial=GPIO.LOW )         # DOUT端子出力設定 LOW (=OFF:オープン)
     GPIO.setup(DIN,  GPIO.IN,  pull_up_down=GPIO.PUD_OFF) # DIN端子入力設定
     time.sleep(0.5)                                       # 電源安定待ち
 
+# ADCとのSPIデータ転送
+# 2020-05-27以降のraspi-osで、SPI CS端子に余分な'L'パルスが発生する現象の対策としてGPIO制御方式へ変更(2020-10-23)
+def xfer_spiadc( wd ):
+    GPIO.output(ADCS, 0)         # SPI CS0='L' GPIO端子として制御する
+    rd = spi.xfer(wd)
+    GPIO.output(ADCS, 1)         # SPI CS0='H'
+    return rd
+
 # 指定chのレンジ選択レジスタ値を設定
 def set_adrange(ch, r):
     wdat = [((5+ch)<<1)|1, r, 0x00, 0x00]     # chの入力レンジ設定
-    rdat = spi.xfer2(wdat)
+    rdat = xfer_spiadc(wdat)
 
 # 指定chのレンジ選択レジスタ値を取得
 def get_adrange(ch):
     wdat = [((5+ch)<<1)|0, 0x00, 0x00, 0x00]  # chの入力レンジ取得
-    rdat = spi.xfer2(wdat)
+    rdat = xfer_spiadc(wdat)
     return rdat[2]
 
 # 指定chのAD変換データ取得
 def get_addata(ch):
     wdat = [0xc0+(ch<<2), 0x00, 0x00, 0x00]   # ch'ch'をAD変換する
-    rdat = spi.xfer2(wdat)                    # ch指定
-    rdat = spi.xfer2(wdat)                    # ADデータ取得
+    rdat = xfer_spiadc(wdat)                  # ch指定
+#   time.sleep(0.1)
+    rdat = xfer_spiadc(wdat)                  # ADデータ取得
     adat = (rdat[2]<<4)+(rdat[3]>>4)          # AD変換値
     return adat
 
@@ -70,13 +83,13 @@ def print_adc(intv, cnt):                     # intv:表示間隔[sec] cnt:表�
         else:                                 # アラームありなら、
             print(" アラーム検知！ ch7-0:{0:08b} " .format(adach), end="" )
             wdat = [(0x11<<1), 0x00, 0x00, 0x00]
-            rdat1 = spi.xfer2(wdat)           # アラーム ch0-3変化 レジスタ読み込み
+            rdat1 = xfer_spiadc(wdat)         # アラーム ch0-3変化 レジスタ読み込み
             wdat = [(0x12<<1), 0x00, 0x00, 0x00]
-            rdat2 = spi.xfer2(wdat)           # アラーム ch0-3状態 レジスタ読み込み
+            rdat2 = xfer_spiadc(wdat)         # アラーム ch0-3状態 レジスタ読み込み
             wdat = [(0x13<<1), 0x00, 0x00, 0x00]
-            rdat3 = spi.xfer2(wdat)           # アラーム ch4-7変化 レジスタ読み込み
+            rdat3 = xfer_spiadc(wdat)         # アラーム ch4-7変化 レジスタ読み込み
             wdat = [(0x14<<1), 0x00, 0x00, 0x00]
-            rdat4 = spi.xfer2(wdat)           # アラーム ch4-7状態 レジスタ読み込み
+            rdat4 = xfer_spiadc(wdat)         # アラーム ch4-7状態 レジスタ読み込み
             print( " ch0-3Trip:%02X/Active:%02X, ch4-7Trip:%02X/Active:%02X " %
                 ( rdat1[2], rdat2[2], rdat3[2], rdat4[2] ) )
             adach = 0                         # アラームクリア
@@ -90,23 +103,23 @@ def set_adalarm(ch, hist, hth, lth):          # ch:アラーム設定ch, hist:�
     reg = 0x15+(ch*5)                         # アラームレジスタベースアドレス ch0=0x15 ～ ch7=0x38
     reg = (reg<<1)|1                          # レジスタへの書き込み
     wdat = [reg, hist<<4, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # ヒステリシス設定
+    rdat = xfer_spiadc(wdat)                  # ヒステリシス設定
     wdat = [reg+2, hth>>4, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # 上限しきい値上位8bit設定
+    rdat = xfer_spiadc(wdat)                  # 上限しきい値上位8bit設定
     wdat = [reg+4, (hth&0x0f)<<4, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # 上限しきい値下位4bit設定
+    rdat = xfer_spiadc(wdat)                  # 上限しきい値下位4bit設定
     wdat = [reg+6, lth>>4, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # 下限しきい値上位8bit設定
+    rdat = xfer_spiadc(wdat)                  # 下限しきい値上位8bit設定
     wdat = [reg+8, (lth&0x0f)<<4, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # 下限しきい値下位4bit設定
+    rdat = xfer_spiadc(wdat)                  # 下限しきい値下位4bit設定
 
 # アラーム有効
 def ena_adalarm(en):                          # 0:アラーム無効 1:アラーム有効
     global adalarm
     wdat = [(0x03<<1), 0x00, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # フィーチャーセレクトレジスタ読み込み
+    rdat = xfer_spiadc(wdat)                  # フィーチャーセレクトレジスタ読み込み
     wdat = [(0x03<<1)|1, (rdat[2]&0xef)|((en&1)<<4), 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # アラーム機能有効/無効設定
+    rdat = xfer_spiadc(wdat)                  # アラーム機能有効/無効設定
     adalarm = en&1                            # アラーム状態保持
 
 # アラームコールバック
@@ -114,7 +127,7 @@ def callback_adalarm(din):
     global adach
     global adadt
     wdat = [(0x10<<1), 0x00, 0x00, 0x00]
-    rdat = spi.xfer2(wdat)                    # アラーム要因レジスタ読み込み
+    rdat = xfer_spiadc(wdat)                  # アラーム要因レジスタ読み込み
     if( rdat[2]==0 ):                         # アラームなし＝DIN入力(H→L変化)あり
         adach = 0x100                         # bit8:DIN
         adadt = get_addata(0)                 # ch0のAD変換値保存
@@ -152,12 +165,13 @@ if __name__ == "__main__":
             interval = int(args.time[0],10)
         if( args.cnt ):             # AD変換回数
             cnt = int(args.cnt[0],10)
-    
+
         # RaspberryPi SPI機能設定
         spi  = spidev.SpiDev()      # RPi-GP40はSPIを使用
         spi.open(0, 0)              #  SPI0, CEN0 でオープン
+        spi.no_cs = True            #  CSはspidevではなくGPIOとして制御する Ra
         spi.mode = 1                #  SPIクロック設定 CPOL=0(正論理), CPHA=1(H->Lでデータ取り込み)
-        spi.max_speed_hz = 17000000 #  SPIクロック最大周波数(17MHz指定)
+        spi.max_speed_hz = 10000000 #  SPIクロック最大周波数(17MHz指定)
                                     #   ただし、2018年4月時点のカーネル仕樣では、指定値より実周波数が低くなる
                                     #   17MHz→10.5MHz, 10MHz→6.2MHz, 8MHz→5MHz, 28MHz→15.6MHz
         DOUT = 12                   # デジタル出力 GPIO12(JP8:Default) / GPIO14(JP7)

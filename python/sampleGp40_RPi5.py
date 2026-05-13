@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 2020-10-23: SPI CS端子をGPIO制御方式へ変更
-# 2026-02-26: RPi.GPIOからgpiozeroへ変更(Raspberry Pi 5対応のため)
+# 2026-05-12: RPi.GPIOからgpiozeroへ変更(Raspberry Pi 5対応のため)
 
 import sys
 import os

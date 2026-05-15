@@ -4,7 +4,25 @@ RPi-GP40用Pythonサンプルファイルの使用方法について説明しま
 Raspberry Piは'Raspberry Pi3 ModelB'、OSは'Raspbian Stretch with desktop(NOOBS:2018-03-14)'で説明します。
 サンプルファイルは`sampleGp40.py`です。  
 
-  
+> [!NOTE]
+> ### ※ Raspberry Pi5での利用について  
+>
+> 対応のサンプルファイルは`sampleGp40_RPi5.py`です。  
+> 以降の説明での実行ファイル名を置き換えてご参照ください。  
+> 
+> 以下のようにTerminalでconfig.txtを開き、[all]にdtoverlay=spi0-0csを追加する必要があります。  
+> ```  
+> $ sudo nano /boot/firmware/config.txt  
+> ```  
+> 
+> 
+> ```  
+> [all]  
+> dtoverlay=spi0-0cs  
+> ```  
+> Ctrl+O を押してconfig.txtを上書きします。(Ctrl+Xで終了)  
+> この設定はOSを再起動すると有効になります。  
+
 ***
 ## 準備
 ### Raspberry PiにRPi-GP40を接続
@@ -68,6 +86,7 @@ GitHubからPythonサンプルファイルをダウンロードします。
 1. **RPi-GP40の初期設定 init_GP40()**  
     GPIOの初期設定を行います。  
     ※<u>ハードウェアに依存する設定ですので変更しないでください。</u>  
+    ※<u>Raspberry Pi5用のサンプルファイルでは本関数は使用していません。</u>  
     - GPIOをGPIO番号で指定するように設定
     - 絶縁回路用電源をONに設定  
         電源ON後、安定するまで待ちます。

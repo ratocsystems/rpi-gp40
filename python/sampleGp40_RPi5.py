@@ -222,7 +222,7 @@ if __name__ == "__main__":
                 if( i=='a' ):       # 無効なら、
                     ena_adalarm( 0 )# アラーム無効
                     if( adalarm==1 ):
-                        button.close()
+                        button.when_pressed = None
                     print("アラーム解除しました。")
                 else:               # アラーム設定値入力
                     ch = int(i) & 0x07
@@ -234,7 +234,7 @@ if __name__ == "__main__":
                     lth = int(i,16) & 0xfff
                     set_adalarm(ch, hist, hth, lth)        # アラーム設定
                     if( adalarm==1 ):
-                        ena_adalarm( 0 )                  # アラーム無効                        # button.close()
+                        ena_adalarm( 0 )                  # アラーム無効
                     adach = 0           # アラームクリア
                     button.when_pressed = callback_adalarm # イベント検出のためのスレッドが自動的に管理され、バウンス処理は内部で自動的に行われる
                     ena_adalarm( 1 )                       # アラーム有効
